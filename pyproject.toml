@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omni-classifier"
+version = "0.1.0"
+description = "Async audio classification client for vLLM-Omni chat completions"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.27.0",
+    "PyYAML>=6.0.1",
+]
+
+[project.optional-dependencies]
+progress = ["tqdm>=4.66.0"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+omni-classify = "omni_classifier.cli:main"
+
+[tool.setuptools]
+packages = ["omni_classifier"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

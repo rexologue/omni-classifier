@@ -23,6 +23,10 @@ io:
   audio_field: "audio_path"
   text_field: "text"
   resume: true
+  # Which prior statuses count as "done" and are skipped on rerun.
+  # Default ["ok"] re-attempts failed/invalid rows. Add "invalid_answer"
+  # to also skip rows the model answered but that failed validation.
+  resume_statuses: ["ok"]
 
 runtime:
   concurrency: 8

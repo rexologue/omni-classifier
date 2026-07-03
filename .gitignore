@@ -1446,5 +1446,6 @@ prompts/
 .claude
 .claude/
 AGENTS.md
+CLAUDE.md
 
 dataset/
