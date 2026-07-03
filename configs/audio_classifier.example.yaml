@@ -1,0 +1,57 @@
+endpoint:
+  base_url: "http://127.0.0.1:48005/v1"
+  model: "omni-model"
+  api_key: ""
+  api_key_env: "OMNI_API_KEY"
+
+sampling:
+  max_tokens: 64
+  temperature: 0.0
+  top_p: 1.0
+  repetition_penalty: 1.0
+  presence_penalty: 0.0
+  frequency_penalty: 0.0
+  seed: null
+  stop: []
+
+io:
+  input_path: "examples/audio_samples.csv"
+  input_format: "auto"       # auto | csv | jsonl
+  output_path: "outputs/audio_labels.jsonl"
+  output_format: "jsonl"     # currently jsonl
+  id_field: "id"
+  audio_field: "audio_path"
+  text_field: "text"
+  resume: true
+
+runtime:
+  concurrency: 8
+  timeout_seconds: 300
+  retries: 2
+  retry_backoff_seconds: 2.0
+  request_jitter_seconds: 0.0
+
+prompt:
+  system_prompt_path: "prompts/audio_classifier_system.txt"
+  user_template: |
+    Разметь текущий аудиосэмпл.
+
+    Дополнительная информация/инструкция:
+    {text}
+
+    Верни только один класс в формате <answer>class_name</answer>.
+  few_shots_path: "prompts/few_shots.example.yaml"
+
+classes:
+  - name: "human"
+    description: "Живой человек отвечает, говорит, реагирует на обращение или ведёт диалог."
+  - name: "answering_machine"
+    description: "Автоответчик, голосовая почта, роботизированное сообщение, недоступность абонента, сигнал после сообщения."
+  - name: "unknown"
+    description: "Невозможно уверенно определить класс из-за шума, тишины, обрыва или недостатка информации."
+
+parsing:
+  answer_tag: "answer"
+  case_sensitive: false
+  allow_bare_label: false
+  strip_quotes: true

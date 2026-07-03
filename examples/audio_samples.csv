@@ -1,0 +1,4 @@
+id,audio_path,text
+sample_001,/path/to/audio_001.mp3,"Определи тип ответа в звонке."
+sample_002,/path/to/audio_002.wav,"Определи тип ответа в звонке."
+
