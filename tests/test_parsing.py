@@ -66,6 +66,29 @@ def test_parse_custom_answer_tag():
     assert result.normalized == "unknown"
 
 
+def test_parse_strips_think_block_before_counting_tags():
+    # Thinking model: reasoning echoes the tag format, then the real answer.
+    text = "<think>ответ должен быть <answer>human</answer></think>\n<answer>human</answer>"
+    result = parse_answer(text, _cfg(), CLASSES)
+    assert result.valid
+    assert result.normalized == "human"
+    assert result.raw_text == text  # raw text is preserved untouched
+
+
+def test_parse_without_strip_reasoning_sees_all_tags():
+    text = "<think><answer>human</answer></think><answer>human</answer>"
+    result = parse_answer(text, _cfg(strip_reasoning=False), CLASSES)
+    assert not result.valid
+    assert "got 2" in result.error
+
+
+def test_parse_custom_reasoning_tag():
+    text = "<reasoning><answer>x</answer></reasoning><answer>unknown</answer>"
+    result = parse_answer(text, _cfg(reasoning_tag="reasoning"), CLASSES)
+    assert result.valid
+    assert result.normalized == "unknown"
+
+
 def test_normalize_label_unknown_returns_none():
     assert normalize_label("nope", CLASSES, case_sensitive=False, strip_quotes=True) is None
 

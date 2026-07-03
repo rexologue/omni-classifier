@@ -45,10 +45,21 @@ def parse_answer(text: str, config: JsonDict, classes: list[ClassSpec]) -> Parse
     case_sensitive = bool(parsing_cfg.get("case_sensitive", False))
     allow_bare_label = bool(parsing_cfg.get("allow_bare_label", False))
     strip_quotes = bool(parsing_cfg.get("strip_quotes", True))
+    strip_reasoning = bool(parsing_cfg.get("strip_reasoning", True))
+    reasoning_tag = str(parsing_cfg.get("reasoning_tag", "think")).strip() or "think"
+
+    # Thinking models (e.g. Qwen3-Omni Thinker) emit a <think>...</think> block
+    # inside `content` that often echoes the answer-tag format, which would make
+    # the answer-tag count exceed one. Strip a closed reasoning block before
+    # parsing so only the real answer remains. `raw_text` keeps the original.
+    search_text = text
+    if strip_reasoning:
+        r = re.escape(reasoning_tag)
+        search_text = re.sub(rf"<{r}>.*?</{r}>", "", text, flags=re.IGNORECASE | re.DOTALL)
 
     escaped = re.escape(answer_tag)
     pattern = rf"<{escaped}>\s*(.*?)\s*</{escaped}>"
-    matches = re.findall(pattern, text, flags=re.IGNORECASE | re.DOTALL)
+    matches = re.findall(pattern, search_text, flags=re.IGNORECASE | re.DOTALL)
 
     if len(matches) > 1:
         return ParsedAnswer(
@@ -79,13 +90,13 @@ def parse_answer(text: str, config: JsonDict, classes: list[ClassSpec]) -> Parse
 
     if allow_bare_label:
         normalized = normalize_label(
-            text,
+            search_text,
             classes,
             case_sensitive=case_sensitive,
             strip_quotes=strip_quotes,
         )
         if normalized is not None:
-            return ParsedAnswer(raw_text=text, extracted=text.strip(), normalized=normalized, valid=True, error=None)
+            return ParsedAnswer(raw_text=text, extracted=search_text.strip(), normalized=normalized, valid=True, error=None)
 
     return ParsedAnswer(
         raw_text=text,

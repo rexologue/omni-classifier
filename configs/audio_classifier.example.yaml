@@ -5,7 +5,10 @@ endpoint:
   api_key_env: "OMNI_API_KEY"
 
 sampling:
-  max_tokens: 64
+  # Thinking models (e.g. Qwen3-Omni Thinker) spend many tokens on a
+  # <think>...</think> block before the answer; 64 truncates before the
+  # <answer> tag. Use 512-1024 for such models, ~64 for plain instruct.
+  max_tokens: 512
   temperature: 0.0
   top_p: 1.0
   repetition_penalty: 1.0
@@ -59,3 +62,8 @@ parsing:
   case_sensitive: false
   allow_bare_label: false
   strip_quotes: true
+  # Strip a <think>...</think> reasoning block before extracting the answer.
+  # Thinking models echo the answer-tag format inside their reasoning, which
+  # would otherwise produce multiple <answer> tags and fail validation.
+  strip_reasoning: true
+  reasoning_tag: "think"
